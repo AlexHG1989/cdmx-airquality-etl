@@ -1,0 +1,20 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.Python
+*.sqlite3
+create_db.py
+air_quality.db
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
