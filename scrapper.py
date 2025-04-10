@@ -12,6 +12,7 @@ from typing import Optional
 import logging
 import sqlite3
 import argparse
+import yaml
 #from create_db import update_data
 
 
@@ -273,102 +274,20 @@ def create_table(sql_path: str, sqlcreatestmmt: str) -> bool:
 
 ### Process Metadata (TODO move this section to a .yaml config file)
 
-table_names = {
-    "cdmx_df":"tabladf",
-    "edomex_df":"tablaedomex"
-}
-cat_month_num = {
-    'enero':'01',
-    'febrero':'02',
-    'marzo':'03',
-    'abril':'04',
-    'mayo':'05',
-    'junio':'06',
-    'julio':'07',
-    'agosto':'08',
-    'septiembre':'09',
-    'octubre':'10',
-    'noviembre':'11',
-    'diciembre':'12'
-}
-url = "http://www.aire.cdmx.gob.mx/ultima-hora-reporte.php"
-headers = {"User-Agent": "Mozilla/5.0"}
-proc_log_name = "etl_log.log"
 
-config_info = {
-    "table_names":table_names,
-    "cat_month_num":cat_month_num,
-    "url":url,
-    "headers":headers,
-    "proc_log_name":proc_log_name
-}
+
+
+"""
+with open("C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/config.yaml", "r", encoding="utf-8") as f:
+    config_info = yaml.safe_load(f)
+
 
 ### SQL configuration info
-sqlcreatestmnt_cdmx='''
-CREATE TABLE IF NOT EXISTS cdmx (
-    report_ts INT NOT NULL,
-    clave_str TEXT NOT NULL,
-    alcaldia_str TEXT,
-    calidad_del_aire_str TEXT,
-    parametro_str TEXT,
-    nupdates INTEGER DEFAULT 1,
-    week_day_str TEXT,
-    month_day_num INT,
-    month_name_str TEXT,
-    month_num INT,
-    year_num INT,
-    hour_num INT,
-    PRIMARY KEY (report_ts, clave_str)
-)
-'''
 
-sqlcreatestmnt_edomex='''
-CREATE TABLE IF NOT EXISTS edomex (
-    report_ts TEXT NOT NULL,
-    clave_str TEXT NOT NULL,
-    municipio_str TEXT ,
-    calidad_del_aire_str TEXT,
-    parametro_str TEXT,
-    nupdates INTEGER DEFAULT 1,
-    week_day_str TEXT,
-    month_day_num INT,
-    month_name_str TEXT,
-    month_num INT,
-    year_num INT,
-    hour_num INT,
-    PRIMARY KEY (report_ts, clave_str)
-)
-'''
-sqlcreatestmnt_gral='''
-CREATE TABLE IF NOT EXISTS gral_stats (
-    report_ts INT NOT NULL,
-    temp_celsius_int INT,
-    reco_uiv_str TEXT,
-    score_air_str TEXT,
-    score_air_next_day_str TEXT,
-    nupdates INTEGER DEFAULT 1,
-    week_day_str TEXT,
-    month_day_num INT,
-    month_name_str TEXT,
-    month_num INT,
-    year_num INT,
-    hour_num INT,
-    PRIMARY KEY (report_ts)
-)
-'''
+with open("C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/sql_config.yaml", "r", encoding="utf-8") as f:
+    sql_config_info = yaml.safe_load(f)
 
-
-sql_config_info ={
-    'init_db':{
-        'sql_path':"C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/air_quality.db",
-        'sql_create_stmnts':{
-            'cdmx':sqlcreatestmnt_cdmx,
-            'edomex':sqlcreatestmnt_edomex,
-            'gral_stats':sqlcreatestmnt_gral
-        }
-    },
-    'sql_tbl_names':['cdmx','edomex','gral_stats']
-}
+"""
 # %%
 
 
@@ -376,6 +295,15 @@ sql_config_info ={
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Runs data update process for calidad aire cdmx project")
+    parser.add_argument('--init_db', action='store_true', help=' Creates the DB and tables for storing the data')
+    parser.add_argument('--config', type=str, default='C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/config.yaml', help='file path for the config data of the process')
+    parser.add_argument('--sql_config', type=str, default='C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/sql_config.yaml', help='file path for the config data of the airquality db')
+    args = parser.parse_args()
+    with open(args.config, "r", encoding="utf-8") as f:
+        config_info = yaml.safe_load(f)
+    with open(args.sql_config, "r", encoding="utf-8") as f:
+        sql_config_info = yaml.safe_load(f)
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -384,9 +312,7 @@ if __name__ == '__main__':
             logging.StreamHandler()
         ]
     )
-    parser = argparse.ArgumentParser(description="Runs data update process for calidad aire cdmx project")
-    parser.add_argument('--init_db', action='store_true', help=' Creates the DB and tables for storing the data')
-    args = parser.parse_args()
+    logging.info("         ")
     logging.info(f"init_db: {args.init_db}")
     if args.init_db:
         logging.info(" About to create the database file : "+str(sql_config_info["init_db"]["sql_path"]))

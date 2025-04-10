@@ -1,0 +1,55 @@
+init_db:
+  sql_path: "C:/Users/alex/Documents/cdmx_airquality_data/scrapper_codes/air_quality.db"
+  sql_create_stmnts:
+    cdmx: |
+      CREATE TABLE IF NOT EXISTS cdmx (
+          report_ts INT NOT NULL,
+          clave_str TEXT NOT NULL,
+          alcaldia_str TEXT,
+          calidad_del_aire_str TEXT,
+          parametro_str TEXT,
+          nupdates INTEGER DEFAULT 1,
+          week_day_str TEXT,
+          month_day_num INT,
+          month_name_str TEXT,
+          month_num INT,
+          year_num INT,
+          hour_num INT,
+          PRIMARY KEY (report_ts, clave_str)
+      )
+    edomex: |
+      CREATE TABLE IF NOT EXISTS edomex (
+          report_ts TEXT NOT NULL,
+          clave_str TEXT NOT NULL,
+          municipio_str TEXT ,
+          calidad_del_aire_str TEXT,
+          parametro_str TEXT,
+          nupdates INTEGER DEFAULT 1,
+          week_day_str TEXT,
+          month_day_num INT,
+          month_name_str TEXT,
+          month_num INT,
+          year_num INT,
+          hour_num INT,
+          PRIMARY KEY (report_ts, clave_str)
+      )
+    gral_stats: |
+      CREATE TABLE IF NOT EXISTS gral_stats (
+          report_ts INT NOT NULL,
+          temp_celsius_int INT,
+          reco_uiv_str TEXT,
+          score_air_str TEXT,
+          score_air_next_day_str TEXT,
+          nupdates INTEGER DEFAULT 1,
+          week_day_str TEXT,
+          month_day_num INT,
+          month_name_str TEXT,
+          month_num INT,
+          year_num INT,
+          hour_num INT,
+          PRIMARY KEY (report_ts)
+      )
+sql_tbl_names:
+  - cdmx
+  - edomex
+  - gral_stats
